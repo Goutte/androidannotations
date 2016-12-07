@@ -24,6 +24,7 @@ import org.androidannotations.annotations.Background;
 import org.androidannotations.annotations.EActivity;
 import org.androidannotations.annotations.UiThread;
 import org.androidannotations.annotations.UiThread.Propagation;
+import org.androidannotations.api.BackgroundExecutor;
 import org.androidannotations.test.ebean.GenericBean;
 import org.androidannotations.test.ebean.SomeBean;
 import org.androidannotations.test.instancestate.MySerializableBean;
@@ -79,6 +80,15 @@ public class ThreadActivity extends Activity {
 	@Background(serial = "test")
 	void addSerializedBackground(List<Integer> list, int i, int delay, Semaphore sem) {
 		add(list, i, delay, sem);
+	}
+
+	@Background(serial = "test")
+	void addSerializedBackgroundWithAssert(List<Integer> list, int i, int delay, Semaphore sem) {
+		int j = -1;
+		if (BackgroundExecutor.hasSerialRunning("test")) {
+			j = i; // the above should hold true or the list will be added a -1 instead
+		}
+		add(list, j, delay, sem);
 	}
 
 	@Background(id = "to_cancel")

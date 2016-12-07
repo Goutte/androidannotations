@@ -328,7 +328,7 @@ public final class BackgroundExecutor {
 	 * @return <code>true</code> if such a task has been submitted,
 	 *         <code>false</code> otherwise
 	 */
-	private static boolean hasSerialRunning(String serial) {
+	public static boolean hasSerialRunning(String serial) {
 		for (Task task : TASKS) {
 			if (task.executionAsked && serial.equals(task.serial)) {
 				return true;

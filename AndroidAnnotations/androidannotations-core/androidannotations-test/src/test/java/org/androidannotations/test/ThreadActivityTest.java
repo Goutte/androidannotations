@@ -236,6 +236,80 @@ public class ThreadActivityTest {
 		}
 	}
 
+	@Test
+	public void testBackgroundExecutorHasSerialRunningAsynchronous() throws InterruptedException {
+		/* set an executor with 4 threads */
+		BackgroundExecutor.setExecutor(Executors.newFixedThreadPool(4));
+
+		testBackgroundExecutorHasSerialRunning();
+	}
+
+	@Test
+	public void testBackgroundExecutorHasSerialRunningSynchronous() throws InterruptedException {
+		/* set a synchronous executor */
+		BackgroundExecutor.setExecutor(new Executor() {
+			@Override
+			public void execute(Runnable command) {
+				try {
+					command.run();
+				} catch (RuntimeException ignored) {
+					// ignored
+				}
+			}
+		});
+
+		testBackgroundExecutorHasSerialRunning();
+	}
+
+	/**
+	 * Verify that calls to BackgroundExecutor.hasSerialRunning have the desired output.
+	 * We check during the execution of the background task, in addSerializedBackgroundWithAssert, which should be true,
+	 * and when all the tasks have completed and the semaphore is released, which should be false.
+	 */
+	private void testBackgroundExecutorHasSerialRunning() {
+		/* number of items to add to the list */
+		final int NB_ADD = 10;
+
+		/*
+		 * the calls are serialized, but not necessarily on the same thread, so
+		 * we need to synchronize to avoid cache effects
+		 */
+		List<Integer> list = Collections.synchronizedList(new ArrayList<Integer>());
+
+		/* sem.acquire() will be unlocked exactly after NB_ADD releases */
+		Semaphore sem = new Semaphore(1 - NB_ADD);
+
+		Random random = new Random();
+
+		/* execute NB_ADD requests to add an item to the list */
+		for (int i = 0; i < NB_ADD; i++) {
+			/*
+			 * wait a random delay (between 0 and 20 milliseconds) to increase
+			 * the probability of wrong order if buggy
+			 */
+			int delay = random.nextInt(20);
+			activity.addSerializedBackgroundWithAssert(list, i, delay, sem);
+		}
+
+		try {
+			/* wait for all tasks to be completed */
+			boolean acquired = sem.tryAcquire(MAX_WAITING_TIME, TimeUnit.MILLISECONDS);
+			Assert.assertTrue("Requested tasks should have completed execution", acquired);
+
+			Assert.assertFalse(
+					"BackgroundExecutor should not show serialized tasks as running",
+					BackgroundExecutor.hasSerialRunning("test")
+			);
+
+			for (int i = 0; i < NB_ADD; i++) {
+				/* our test in addSerializedBackgroundWithAssert will add -1s to the list when it fails */
+				Assert.assertEquals("BackgroundExecutor should show serialized tasks as running", i, (int) list.get(i));
+			}
+		} catch (InterruptedException e) {
+			Assert.assertFalse("Testing thread should never be interrupted", true);
+		}
+	}
+
 	/**
 	 * Verify that cancellable background tasks are correctly cancelled, and
 	 * others are not.
