@@ -1,0 +1,4 @@
+# This file is for jitpack.io because this is our own fork.
+# See https://jitpack.io/docs/BUILDING/#build-customization
+jdk:
+  - oraclejdk8
