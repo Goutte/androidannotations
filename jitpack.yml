@@ -2,3 +2,5 @@
 # See https://jitpack.io/docs/BUILDING/#build-customization
 jdk:
   - oraclejdk8
+install:
+  - mvn clean install -DskipTests
