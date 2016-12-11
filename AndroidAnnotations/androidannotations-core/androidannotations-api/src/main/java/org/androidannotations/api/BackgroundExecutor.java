@@ -250,10 +250,14 @@ public final class BackgroundExecutor {
 	public static synchronized void cancelAll(String id, boolean mayInterruptIfRunning) {
 		for (int i = TASKS.size() - 1; i >= 0; i--) {
 			Task task = TASKS.get(i);
+			Log.d("G2P", String.format("Cancelling Task #%d of id '%s'.", i, task.id));
 			if (id.equals(task.id)) {
+				Log.d("G2P", String.format("Cancelling Task #%d of id '%s' that matches id '%s'.", i, task.id, id));
 				if (task.future != null) {
+					Log.d("G2P", String.format("Cancelling Task #%d with future.", i));
 					task.future.cancel(mayInterruptIfRunning);
 					if (!task.managed.getAndSet(true)) {
+						Log.d("G2P", String.format("Running Task #%d postExecute.", i));
 						/*
 						 * the task has been submitted to the executor, but its
 						 * execution has not started yet, so that its run()
