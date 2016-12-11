@@ -284,7 +284,7 @@ public class ThreadActivityTest {
 
 			Assert.assertEquals("Only uncancelled tasks must have added items", list.size(), NB_ADD);
 
-			for (int i = 0; i < NB_ADD; i++) {
+			for (int i = 0; i < list.size(); i++) {
 				Assert.assertTrue("Items must be only from uncancelled tasks", i < NB_ADD);
 			}
 		} catch (InterruptedException e) {
@@ -328,12 +328,12 @@ public class ThreadActivityTest {
 			boolean acquired = sem.tryAcquire(MAX_WAITING_TIME, TimeUnit.MILLISECONDS);
 			Assert.assertTrue("Requested tasks should have completed execution", acquired);
 
-			/* cancel all tasks with id "to_cancel_2" */
-			BackgroundExecutor.cancelAll("to_cancel_2", true);
+			/* cancelling all tasks with an non-existing id should not raise */
+			BackgroundExecutor.cancelAll("not_an_id", true);
 
 			Assert.assertEquals("Only uncancelled tasks must have added items", list.size(), NB_ADD);
 
-			for (int i = 0; i < NB_ADD; i++) {
+			for (int i = 0; i < list.size(); i++) {
 				Assert.assertTrue("Items must be only from uncancelled tasks", i < NB_ADD);
 			}
 
