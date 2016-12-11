@@ -359,7 +359,7 @@ public class ThreadActivityTest {
 			Assert.assertEquals("Only uncancelled tasks must have added items", list.size(), NB_ADD);
 
 			for (int i = 0; i < list.size(); i++) {
-				Assert.assertTrue("Items must be only from uncancelled tasks", i < NB_ADD);
+				Assert.assertTrue("Items must be only from uncancelled tasks", list.get(i) < NB_ADD);
 			}
 		} catch (InterruptedException e) {
 			Assert.assertFalse("Testing thread should never be interrupted", true);
@@ -408,7 +408,7 @@ public class ThreadActivityTest {
 			Assert.assertEquals("Only uncancelled tasks must have added items", list.size(), NB_ADD);
 
 			for (int i = 0; i < list.size(); i++) {
-				Assert.assertTrue("Items must be only from uncancelled tasks", i < NB_ADD);
+				Assert.assertTrue("Items must be only from uncancelled tasks", list.get(i) < NB_ADD);
 			}
 
 		} catch (InterruptedException e) {
